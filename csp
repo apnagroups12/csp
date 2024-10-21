@@ -1,0 +1,51 @@
+import hashlib
+import time
+import random
+
+class Block:
+    def __init__(self, index, previous_hash, timestamp, data, signature):
+        self.index = index
+        self.previous_hash = previous_hash
+        self.timestamp = timestamp
+        self.data = data
+        self.signature = signature
+        self.hash = self.calculate_hash()
+
+    def calculate_hash(self):
+        block_string = f"{self.index}{self.previous_hash}{self.timestamp}{self.data}{self.signature}".encode()
+        return hashlib.sha256(block_string).hexdigest()
+
+class SimpleBlockchain:
+    def __init__(self):
+        self.chain = []
+        self.create_genesis_block()
+
+    def create_genesis_block(self):
+        genesis_block = Block(0, "0", time.time(), "Genesis Block", "")
+        self.chain.append(genesis_block)
+
+    def add_block(self, data, signature):
+        previous_block = self.chain[-1]
+        new_block = Block(previous_block.index + 1, previous_block.hash, time.time(), data, signature)
+        self.chain.append(new_block)
+
+    def display_chain(self):
+        for block in self.chain:
+            print(f"Block {block.index}:\n"
+                  f"Hash: {block.hash}\n"
+                  f"Previous Hash: {block.previous_hash}\n"
+                  f"Data: {block.data}\n"
+                  f"Signature: {block.signature}\n"
+                  f"Timestamp: {block.timestamp}\n")
+
+def sign_data(data):
+    return hashlib.sha256(data.encode()).hexdigest()
+
+# Example usage
+blockchain = SimpleBlockchain()
+for i in range(1, 4):
+    transaction_data = f"Transaction {random.randint(1, 100)}"
+    signature = sign_data(transaction_data)
+    blockchain.add_block(transaction_data, signature)
+
+blockchain.display_chain()
